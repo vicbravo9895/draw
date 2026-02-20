@@ -1,5 +1,5 @@
-# Producción: Laravel + PHP 8.2
-FROM php:8.2-cli-alpine AS base
+# Producción: Laravel + PHP 8.4 (composer.lock requiere paquetes PHP 8.4+)
+FROM php:8.4-cli-alpine AS base
 
 RUN apk add --no-cache \
     libpq-dev \
