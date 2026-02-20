@@ -31,20 +31,10 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 COPY . .
 RUN composer dump-autoload --optimize
 
-# Build front (necesita node en etapa de build)
-FROM node:20-alpine AS frontend
-WORKDIR /var/www/html
-COPY package.json package-lock.json* ./
+# Build front: desde base para tener PHP (wayfinder ejecuta `php artisan wayfinder:generate` en el build)
+FROM base AS frontend
+RUN apk add --no-cache nodejs npm
 RUN npm ci
-COPY . .
-COPY --from=base /var/www/html/vendor /var/www/html/vendor
-COPY --from=base /var/www/html/app /var/www/html/app
-COPY --from=base /var/www/html/bootstrap /var/www/html/bootstrap
-COPY --from=base /var/www/html/config /var/www/html/config
-COPY --from=base /var/www/html/database /var/www/html/database
-COPY --from=base /var/www/html/public /var/www/html/public
-COPY --from=base /var/www/html/resources /var/www/html/resources
-COPY --from=base /var/www/html/routes /var/www/html/routes
 RUN npm run build
 
 # Imagen final

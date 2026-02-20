@@ -14,7 +14,8 @@ export default defineConfig({
         tailwindcss(),
         wayfinder({
             formVariants: true,
-            command: './vendor/bin/sail artisan wayfinder:generate',
+            // php artisan (no Sail) para que funcione en Docker y en entornos sin Sail
+            command: 'php artisan wayfinder:generate',
         }),
         vue({
             template: {
