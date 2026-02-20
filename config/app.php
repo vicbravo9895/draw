@@ -123,4 +123,10 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    | Allow migrate:fresh / migrate:refresh when APP_ENV=production.
+    | Set APP_ALLOW_DESTRUCTIVE_COMMANDS=true only for one-off runs (e.g. first deploy).
+    */
+    'allow_destructive_commands' => (bool) env('APP_ALLOW_DESTRUCTIVE_COMMANDS', false),
+
 ];
