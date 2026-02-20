@@ -63,16 +63,19 @@ class AuthController extends Controller
             ['viewer' => $viewer->id]
         );
 
-        // Send notification
+        // Send notification (email)
         $viewer->notify(new MagicLinkNotification($signedUrl));
 
-        return redirect()->route('portal.magic-link.sent')->with('email', $email);
+        return redirect()->route('portal.magic-link.sent')
+            ->with('email', $email)
+            ->with('magic_link_url', $signedUrl);
     }
 
     public function magicLinkSent(Request $request)
     {
         return Inertia::render('Portal/Auth/MagicLinkSent', [
             'email' => session('email', ''),
+            'magic_link_url' => session('magic_link_url', null),
         ]);
     }
 
