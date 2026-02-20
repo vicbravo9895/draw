@@ -10,6 +10,21 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Admin con todos los permisos (crear empresas, usuarios, inspecciones, etc.)
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@pluss.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('password'),
+                'company_id' => null,
+                'employee_number' => 'EMP-ADM',
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+        $admin->syncRoles(['super_admin']);
+        $admin->companies()->sync([]);
+
         // Usuario con permisos para crear inspecciones (supervisor: crear, editar, completar)
         $creador = User::firstOrCreate(
             ['email' => 'creador@pluss.com'],
