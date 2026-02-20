@@ -1,0 +1,62 @@
+# Docker Compose para producción (sencillo: app + PostgreSQL).
+#
+# Uso rápido:
+#   1. (Opcional) cp .env.prod.example .env  y edita APP_KEY, contraseñas, etc.
+#   2. docker compose -f docker-compose.prod.yml up -d
+#   3. Abre http://localhost:8000
+#
+# Al arrancar se ejecutan migraciones y el seeder que crea:
+#   - Usuario inspector: inspector@pluss.com / password
+#   - Usuario admin:      admin@pluss.com / password
+#
+# Para producción real define APP_KEY (ej: php artisan key:generate --show).
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      APP_NAME: "${APP_NAME:-Pluss}"
+      APP_ENV: production
+      APP_DEBUG: "${APP_DEBUG:-false}"
+      APP_URL: "${APP_URL:-http://localhost:8000}"
+      APP_KEY: "${APP_KEY:-}"
+      DB_CONNECTION: pgsql
+      DB_HOST: pgsql
+      DB_PORT: 5432
+      DB_DATABASE: "${DB_DATABASE:-pluss}"
+      DB_USERNAME: "${DB_USERNAME:-pluss}"
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      # Opcional: cambiar credenciales del seeder
+      APP_INSPECTOR_EMAIL: "${APP_INSPECTOR_EMAIL:-inspector@pluss.com}"
+      APP_INSPECTOR_PASSWORD: "${APP_INSPECTOR_PASSWORD:-password}"
+      APP_ADMIN_EMAIL: "${APP_ADMIN_EMAIL:-admin@pluss.com}"
+      APP_ADMIN_PASSWORD: "${APP_ADMIN_PASSWORD:-password}"
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  pgsql:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-pluss}"
+      POSTGRES_USER: "${DB_USERNAME:-pluss}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-secret}"
+    volumes:
+      - pgsql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-pluss} -d ${DB_DATABASE:-pluss}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgsql_data:
