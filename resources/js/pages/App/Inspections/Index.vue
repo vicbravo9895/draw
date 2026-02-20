@@ -76,26 +76,28 @@ function confirmDelete() {
 <template>
     <Head title="Inspecciones" />
     <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
-        <div class="flex items-center justify-between">
+    <div class="flex h-full flex-1 flex-col gap-6 p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight">Inspecciones</h1>
-                <p class="text-muted-foreground">{{ inspections.total }} registros</p>
+                <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Inspecciones</h1>
+                <p class="mt-0.5 text-sm text-muted-foreground">{{ inspections.total }} registros</p>
             </div>
             <Link v-if="canCreate" href="/app/inspections/create">
-                <Button><Plus class="mr-2 h-4 w-4" /> Nueva</Button>
+                <Button class="rounded-xl font-semibold shadow-sm">
+                    <Plus class="mr-2 h-4 w-4" /> Nueva
+                </Button>
             </Link>
         </div>
 
-        <Card>
+        <Card class="border-2 border-border shadow-sm">
             <CardContent class="pt-6">
-                <div class="flex gap-4">
-                    <div class="relative flex-1">
+                <div class="flex flex-wrap gap-3">
+                    <div class="relative flex-1 min-w-[200px]">
                         <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input v-model="search" placeholder="Buscar..." class="pl-9" />
+                        <Input v-model="search" placeholder="Buscar por referencia, empresa…" class="rounded-xl pl-9" />
                     </div>
                     <Select v-model="statusFilter">
-                        <SelectTrigger class="w-40">
+                        <SelectTrigger class="w-full rounded-xl sm:w-44">
                             <SelectValue placeholder="Todos" />
                         </SelectTrigger>
                         <SelectContent>
@@ -109,40 +111,40 @@ function confirmDelete() {
             </CardContent>
         </Card>
 
-        <Card>
+        <Card class="overflow-hidden border-2 border-border shadow-sm">
             <CardContent class="p-0">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="border-b bg-muted/50">
-                                <th class="px-4 py-3 text-left font-medium">Ref.</th>
-                                <th class="px-4 py-3 text-left font-medium">Empresa</th>
-                                <th class="px-4 py-3 text-left font-medium">Fecha</th>
-                                <th class="px-4 py-3 text-left font-medium">Proyecto</th>
-                                <th class="px-4 py-3 text-left font-medium">Estatus</th>
-                                <th class="px-4 py-3 text-right font-medium">Buenas</th>
-                                <th class="px-4 py-3 text-right font-medium">Malas</th>
-                                <th class="px-4 py-3 text-right font-medium">Total</th>
-                                <th class="px-4 py-3 text-right font-medium">%</th>
-                                <th class="px-4 py-3 text-right font-medium">Acciones</th>
+                            <tr class="border-b border-border bg-muted/60">
+                                <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Ref.</th>
+                                <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Empresa</th>
+                                <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Fecha</th>
+                                <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Proyecto</th>
+                                <th class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Estatus</th>
+                                <th class="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Buenas</th>
+                                <th class="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Malas</th>
+                                <th class="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Total</th>
+                                <th class="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">%</th>
+                                <th class="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="ins in inspections.data" :key="ins.id" class="border-b hover:bg-muted/50">
-                                <td class="px-4 py-3 font-medium">{{ ins.reference_code }}</td>
+                            <tr v-for="ins in inspections.data" :key="ins.id" class="border-b border-border transition-colors hover:bg-muted/40">
+                                <td class="px-4 py-3 font-semibold text-foreground">{{ ins.reference_code }}</td>
                                 <td class="px-4 py-3 text-muted-foreground">{{ ins.company_name }}</td>
                                 <td class="px-4 py-3">{{ ins.date }}</td>
                                 <td class="px-4 py-3">{{ ins.project }}</td>
-                                <td class="px-4 py-3"><Badge :variant="(statusColors[ins.status] as any)">{{ statusLabels[ins.status] }}</Badge></td>
-                                <td class="px-4 py-3 text-right tabular-nums">{{ ins.total_good.toLocaleString() }}</td>
-                                <td class="px-4 py-3 text-right tabular-nums text-destructive">{{ ins.total_defects }}</td>
+                                <td class="px-4 py-3"><Badge :variant="(statusColors[ins.status] as any)" class="font-semibold">{{ statusLabels[ins.status] }}</Badge></td>
+                                <td class="px-4 py-3 text-right tabular-nums font-medium text-quality-ok">{{ ins.total_good.toLocaleString() }}</td>
+                                <td class="px-4 py-3 text-right tabular-nums font-medium text-quality-critical">{{ ins.total_defects }}</td>
                                 <td class="px-4 py-3 text-right tabular-nums font-medium">{{ ins.total.toLocaleString() }}</td>
-                                <td class="px-4 py-3 text-right tabular-nums">{{ ins.defect_rate }}%</td>
+                                <td class="px-4 py-3 text-right tabular-nums font-semibold">{{ ins.defect_rate }}%</td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex justify-end gap-1">
-                                        <Link :href="`/app/inspections/${ins.id}`"><Button variant="ghost" size="sm"><Eye class="h-4 w-4" /></Button></Link>
-                                        <Link v-if="ins.status !== 'completed'" :href="`/app/inspections/${ins.id}/edit`"><Button variant="ghost" size="sm"><Pencil class="h-4 w-4" /></Button></Link>
-                                        <Button v-if="ins.status === 'pending' && canDelete" variant="ghost" size="sm" @click="deleteInspection(ins.id)"><Trash2 class="h-4 w-4 text-destructive" /></Button>
+                                        <Link :href="`/app/inspections/${ins.id}`"><Button variant="ghost" size="sm" class="rounded-lg"><Eye class="h-4 w-4" /></Button></Link>
+                                        <Link v-if="ins.status !== 'completed'" :href="`/app/inspections/${ins.id}/edit`"><Button variant="ghost" size="sm" class="rounded-lg"><Pencil class="h-4 w-4" /></Button></Link>
+                                        <Button v-if="ins.status === 'pending' && canDelete" variant="ghost" size="sm" class="rounded-lg text-quality-critical hover:bg-quality-critical/10" @click="deleteInspection(ins.id)"><Trash2 class="h-4 w-4" /></Button>
                                     </div>
                                 </td>
                             </tr>
@@ -152,11 +154,11 @@ function confirmDelete() {
             </CardContent>
         </Card>
 
-        <div v-if="inspections.last_page > 1" class="flex items-center justify-between">
+        <div v-if="inspections.last_page > 1" class="flex flex-wrap items-center justify-between gap-3">
             <p class="text-sm text-muted-foreground">Pág. {{ inspections.current_page }} de {{ inspections.last_page }}</p>
             <div class="flex gap-1">
                 <template v-for="link in inspections.links" :key="link.label">
-                    <Link v-if="link.url" :href="link.url" class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm" :class="link.active ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'" v-html="link.label" preserve-state />
+                    <Link v-if="link.url" :href="link.url" class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg border-2 px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring" :class="link.active ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-muted'" v-html="link.label" preserve-state />
                 </template>
             </div>
         </div>

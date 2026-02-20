@@ -179,16 +179,16 @@ function submit() {
     <Head title="Nueva Inspección" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-4">
+        <div class="flex h-full flex-1 flex-col gap-6 p-4 sm:p-5">
             <div>
-                <h1 class="text-xl font-bold tracking-tight sm:text-2xl">Nueva Inspección</h1>
-                <p class="text-sm text-muted-foreground">Captura de reporte de sorteo y retrabajo</p>
+                <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Nueva Inspección</h1>
+                <p class="mt-0.5 text-sm text-muted-foreground">Captura de reporte de sorteo y retrabajo</p>
             </div>
 
             <!-- Header -->
-            <Card>
+            <Card class="border-2 border-border shadow-sm">
                 <CardHeader>
-                    <CardTitle class="text-base">Datos Generales</CardTitle>
+                    <CardTitle class="text-base font-semibold">Datos Generales</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -200,7 +200,7 @@ function submit() {
                                 placeholder="Seleccionar empresa..."
                                 search-placeholder="Buscar empresa..."
                             />
-                            <p v-if="form.errors.company_id" class="text-xs text-destructive">
+                            <p v-if="form.errors.company_id" class="text-xs font-medium text-quality-critical">
                                 {{ form.errors.company_id }}
                             </p>
                         </div>
@@ -248,20 +248,20 @@ function submit() {
 
             <!-- Parts -->
             <div v-for="(part, pIdx) in form.parts" :key="pIdx" class="space-y-2">
-                <Card>
+                <Card class="border-2 border-border shadow-sm">
                     <CardHeader class="pb-3">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div class="flex items-center gap-2">
-                                <CardTitle class="shrink-0 text-base">Parte #{{ pIdx + 1 }}</CardTitle>
-                                <Input v-model="part.part_number" placeholder="Número de parte" class="h-8 w-full sm:w-48" />
-                                <Button type="button" variant="outline" size="sm" class="h-8 shrink-0" title="Escanear número de parte" @click="openScanPartNumber(pIdx)">
+                                <CardTitle class="shrink-0 text-base font-semibold">Parte #{{ pIdx + 1 }}</CardTitle>
+                                <Input v-model="part.part_number" placeholder="Número de parte" class="h-9 w-full rounded-lg sm:w-48" />
+                                <Button type="button" variant="outline" size="sm" class="h-9 shrink-0 rounded-lg" title="Escanear número de parte" @click="openScanPartNumber(pIdx)">
                                     <ScanLine class="h-4 w-4" />
                                 </Button>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-muted-foreground sm:text-sm">
-                                    Buenas: <strong>{{ partTotals[pIdx]?.good ?? 0 }}</strong>
-                                    &middot; Malas: <strong class="text-destructive">{{ partTotals[pIdx]?.defects ?? 0 }}</strong>
+                                    Buenas: <strong class="text-quality-ok">{{ partTotals[pIdx]?.good ?? 0 }}</strong>
+                                    &middot; Malas: <strong class="text-quality-critical">{{ partTotals[pIdx]?.defects ?? 0 }}</strong>
                                     &middot; Total: <strong>{{ (partTotals[pIdx]?.good ?? 0) + (partTotals[pIdx]?.defects ?? 0) }}</strong>
                                 </span>
                                 <Button v-if="form.parts.length > 1" variant="ghost" size="sm" @click="removePart(pIdx)">

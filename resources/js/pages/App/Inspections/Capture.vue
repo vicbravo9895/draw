@@ -113,17 +113,17 @@ const draftQualityStatus = computed(() => {
 
 const qualityColor = computed(() => {
     const pct = liveTotals.value.quality_pct;
-    if (liveTotals.value.total === 0) return 'text-zinc-400';
-    if (pct >= props.qualityThresholds.green) return 'text-emerald-600';
-    if (pct >= props.qualityThresholds.amber) return 'text-amber-500';
-    return 'text-red-600';
+    if (liveTotals.value.total === 0) return 'text-muted-foreground';
+    if (pct >= props.qualityThresholds.green) return 'text-quality-ok';
+    if (pct >= props.qualityThresholds.amber) return 'text-quality-warn';
+    return 'text-quality-critical';
 });
 
 const draftQualityColor = computed(() => {
-    if (!draftQualityStatus.value) return 'text-zinc-400';
-    if (draftQualityStatus.value === 'acceptable') return 'text-emerald-600';
-    if (draftQualityStatus.value === 'warning') return 'text-amber-500';
-    return 'text-red-600';
+    if (!draftQualityStatus.value) return 'text-muted-foreground';
+    if (draftQualityStatus.value === 'acceptable') return 'text-quality-ok';
+    if (draftQualityStatus.value === 'warning') return 'text-quality-warn';
+    return 'text-quality-critical';
 });
 
 const draftStatusLabel = computed(() => {
@@ -457,22 +457,22 @@ onMounted(() => {
 <template>
     <Head title="Captura de Inspección" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 p-3 lg:p-4">
-            <!-- Top bar -->
-            <div class="flex items-center justify-between">
+        <div class="flex h-full flex-1 flex-col gap-5 p-3 sm:p-4 lg:p-5">
+            <!-- Top bar: back + rapid mode -->
+            <div class="flex items-center justify-between animate-capture-reveal">
                 <Link
                     :href="`/app/inspections/${inspection.id}`"
-                    class="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                    class="inline-flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                    <ArrowLeft class="h-4 w-4" />
-                    {{ inspection.reference_code }}
+                    <ArrowLeft class="h-4 w-4 shrink-0" />
+                    <span class="truncate">{{ inspection.reference_code }}</span>
                 </Link>
                 <button
                     type="button"
-                    class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors"
+                    class="inline-flex items-center gap-2 rounded-xl border-2 px-4 py-2.5 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     :class="store.rapidMode
-                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
-                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'"
+                        ? 'border-amber-400 bg-amber-50 text-amber-800 dark:border-amber-500 dark:bg-amber-950/50 dark:text-amber-300'
+                        : 'border-border bg-muted/80 text-muted-foreground hover:border-muted-foreground/30'"
                     @click="store.toggleRapidMode()"
                 >
                     <Zap v-if="store.rapidMode" class="h-4 w-4" />
@@ -481,55 +481,53 @@ onMounted(() => {
                 </button>
             </div>
 
-            <!-- Tablet: two-column layout at 900px+ -->
-            <div class="flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_1.2fr] lg:items-start">
+            <!-- Two-column layout: KPI strip + Capture form -->
+            <div class="flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_1.25fr] lg:items-start">
 
-                <!-- HEADER CARD — Live Totals -->
-                <Card class="border-2 border-zinc-200 dark:border-zinc-700">
-                    <CardContent class="p-4">
-                        <div class="mb-3 flex items-baseline justify-between">
-                            <span class="text-xs font-bold uppercase tracking-widest text-zinc-400">Totales en Vivo</span>
-                            <span class="rounded bg-zinc-100 px-2 py-0.5 text-xs font-mono text-zinc-500 dark:bg-zinc-800">
-                                {{ store.recordCount }} registros
+                <!-- KPI card — Totales en vivo -->
+                <Card class="overflow-hidden border-2 border-border bg-card shadow-sm animate-capture-reveal animate-capture-reveal-1">
+                    <CardContent class="p-4 sm:p-5">
+                        <div class="mb-4 flex items-baseline justify-between">
+                            <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Totales en vivo</span>
+                            <span class="rounded-md bg-muted px-2.5 py-1 text-xs font-semibold tabular-nums text-muted-foreground">
+                                {{ store.recordCount }} reg.
                             </span>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            <div>
-                                <span class="block text-xs font-medium text-zinc-400">Buenas</span>
-                                <span class="text-2xl font-bold text-emerald-600">{{ liveTotals.total_good }}</span>
+                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                            <div class="animate-capture-reveal animate-capture-reveal-2">
+                                <span class="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Buenas</span>
+                                <span class="mt-0.5 block text-2xl font-bold tabular-nums text-quality-ok sm:text-3xl">{{ liveTotals.total_good }}</span>
                             </div>
-                            <div>
-                                <span class="block text-xs font-medium text-zinc-400">Defectos</span>
-                                <span class="text-2xl font-bold text-red-500">{{ liveTotals.total_defects }}</span>
+                            <div class="animate-capture-reveal animate-capture-reveal-3">
+                                <span class="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Defectos</span>
+                                <span class="mt-0.5 block text-2xl font-bold tabular-nums text-quality-critical sm:text-3xl">{{ liveTotals.total_defects }}</span>
                             </div>
-                            <div>
-                                <span class="block text-xs font-medium text-zinc-400">Total</span>
-                                <span class="text-2xl font-bold text-zinc-700 dark:text-zinc-200">{{ liveTotals.total }}</span>
+                            <div class="animate-capture-reveal animate-capture-reveal-4">
+                                <span class="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total</span>
+                                <span class="mt-0.5 block text-2xl font-bold tabular-nums text-foreground sm:text-3xl">{{ liveTotals.total }}</span>
                             </div>
-                            <div>
-                                <span class="block text-xs font-medium text-zinc-400">Calidad</span>
-                                <span class="text-2xl font-bold" :class="qualityColor">
+                            <div class="animate-capture-reveal animate-capture-reveal-5">
+                                <span class="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Calidad</span>
+                                <span class="mt-0.5 block text-2xl font-bold tabular-nums sm:text-3xl" :class="qualityColor">
                                     {{ liveTotals.total > 0 ? liveTotals.quality_pct + '%' : '—' }}
                                 </span>
                             </div>
                         </div>
-
-                        <!-- Network & sync indicators -->
-                        <div v-if="!store.isOnline" class="mt-3 rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
-                            Sin conexión — los registros se guardarán localmente
+                        <!-- Network & sync -->
+                        <div v-if="!store.isOnline" class="mt-4 rounded-lg border border-quality-critical/30 bg-quality-critical/10 px-3 py-2.5 text-xs font-medium text-quality-critical">
+                            Sin conexión — se guardará localmente
                         </div>
-                        <div v-if="store.pendingRecords.length > 0" class="mt-3 flex items-center justify-between rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-                            <span>{{ store.pendingRecords.length }} registro(s) pendiente(s) de sincronización</span>
+                        <div v-else-if="store.pendingRecords.length > 0" class="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-quality-warn/40 bg-quality-warn/10 px-3 py-2.5 text-xs font-medium text-quality-warn">
+                            <span>{{ store.pendingRecords.length }} pendiente(s)</span>
                             <button
-                                v-if="store.isOnline && !store.isSyncing"
+                                v-if="!store.isSyncing"
                                 type="button"
-                                class="ml-2 rounded bg-amber-200 px-2 py-1 text-xs font-bold hover:bg-amber-300 dark:bg-amber-800 dark:hover:bg-amber-700"
+                                class="rounded-lg bg-quality-warn/20 px-3 py-1.5 font-bold hover:bg-quality-warn/30 focus-visible:ring-2 focus-visible:ring-quality-warn"
                                 @click="store.syncPendingRecords()"
                             >
                                 Sincronizar
                             </button>
-                            <span v-if="store.isSyncing" class="ml-2 text-xs">Sincronizando...</span>
+                            <span v-else class="text-muted-foreground">Sincronizando…</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -537,45 +535,45 @@ onMounted(() => {
                 <!-- CAPTURE CARD -->
                 <Card
                     id="capture-card"
-                    class="relative overflow-hidden border-2 transition-all duration-300"
+                    class="relative overflow-hidden border-2 shadow-md transition-all duration-300 animate-capture-reveal animate-capture-reveal-6"
                     :class="[
                         saveSuccess
-                            ? 'border-emerald-400 bg-emerald-50/50 dark:border-emerald-600 dark:bg-emerald-900/20'
+                            ? 'border-quality-ok bg-quality-ok/10 dark:bg-quality-ok/20'
                             : editingItemId
-                                ? 'border-blue-400 dark:border-blue-600'
-                                : 'border-zinc-200 dark:border-zinc-700',
+                                ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                : 'border-border bg-card',
                     ]"
                 >
                     <!-- Success overlay -->
                     <Transition
                         enter-active-class="transition-all duration-300 ease-out"
-                        enter-from-class="opacity-0 scale-75"
+                        enter-from-class="opacity-0 scale-95"
                         enter-to-class="opacity-100 scale-100"
                         leave-active-class="transition-all duration-200 ease-in"
                         leave-from-class="opacity-100 scale-100"
-                        leave-to-class="opacity-0 scale-75"
+                        leave-to-class="opacity-0 scale-95"
                     >
                         <div
                             v-if="saveSuccess"
-                            class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-emerald-50/90 dark:bg-emerald-900/80"
+                            class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-quality-ok/95 dark:bg-quality-ok/90"
                         >
-                            <div class="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500">
-                                <Check class="h-8 w-8 text-white" />
+                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-lg">
+                                <Check class="h-10 w-10 text-quality-ok" stroke-width="2.5" />
                             </div>
-                            <span class="mt-2 text-lg font-bold text-emerald-700 dark:text-emerald-200">Guardado</span>
+                            <span class="mt-3 text-xl font-bold text-white drop-shadow-sm">Guardado</span>
                         </div>
                     </Transition>
 
-                    <CardContent class="space-y-4 p-4">
+                    <CardContent class="space-y-5 p-4 sm:p-5">
                         <!-- Editing banner -->
-                        <div v-if="editingItemId" class="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 dark:border-blue-800 dark:bg-blue-900/30">
-                            <span class="text-sm font-bold text-blue-700 dark:text-blue-300">
-                                <Pencil class="mr-1 inline h-4 w-4" />
-                                Editando registro #{{ editingItemId }}
+                        <div v-if="editingItemId" class="flex items-center justify-between rounded-xl border-2 border-primary/40 bg-primary/10 px-4 py-2.5">
+                            <span class="text-sm font-bold text-primary">
+                                <Pencil class="mr-1.5 inline h-4 w-4" />
+                                Editando #{{ editingItemId }}
                             </span>
                             <button
                                 type="button"
-                                class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-800"
+                                class="inline-flex items-center gap-1 rounded-lg border border-primary/30 bg-card px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring"
                                 @click="cancelEdit"
                             >
                                 <X class="h-3.5 w-3.5" /> Cancelar
@@ -583,13 +581,13 @@ onMounted(() => {
                         </div>
 
                         <!-- General error -->
-                        <div v-if="formErrors.general" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
+                        <div v-if="formErrors.general" class="rounded-xl border-2 border-quality-critical/40 bg-quality-critical/10 px-4 py-2.5 text-sm font-semibold text-quality-critical">
                             {{ formErrors.general }}
                         </div>
 
                         <!-- PART NUMBER -->
                         <div>
-                            <Label class="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-400">Número de Parte</Label>
+                            <Label class="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Número de Parte</Label>
                             <div class="flex gap-2">
                                 <div class="relative flex-1">
                                     <Input
@@ -597,11 +595,11 @@ onMounted(() => {
                                         v-model="partNumber"
                                         placeholder="Escanear o escribir..."
                                         :disabled="!!editingItemId"
-                                        class="h-14 text-lg font-semibold transition-colors"
+                                        class="h-14 rounded-xl text-lg font-semibold transition-colors"
                                         :class="[
-                                            flashFields.part ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-900/30' : '',
-                                            formErrors.part_number ? 'border-red-400' : '',
-                                            editingItemId ? 'opacity-60' : '',
+                                            flashFields.part ? 'border-quality-ok bg-quality-ok/10 dark:bg-quality-ok/20' : '',
+                                            formErrors.part_number ? 'border-quality-critical ring-2 ring-quality-critical/20' : '',
+                                            editingItemId ? 'opacity-70' : '',
                                         ]"
                                         inputmode="none"
                                         autocomplete="off"
@@ -611,28 +609,28 @@ onMounted(() => {
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    class="h-14 w-14 shrink-0"
+                                    class="h-14 w-14 shrink-0 rounded-xl border-2 focus-visible:ring-2 focus-visible:ring-ring"
                                     @click="openScanner('part')"
                                 >
                                     <ScanLine class="h-6 w-6" />
                                 </Button>
                             </div>
-                            <p v-if="formErrors.part_number" class="mt-1 text-sm font-medium text-red-600">{{ formErrors.part_number }}</p>
+                            <p v-if="formErrors.part_number" class="mt-1.5 text-sm font-semibold text-quality-critical">{{ formErrors.part_number }}</p>
                         </div>
 
                         <!-- SERIAL NUMBER -->
                         <div>
-                            <Label class="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-400">Número de Serie</Label>
+                            <Label class="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Número de Serie</Label>
                             <div class="flex gap-2">
                                 <div class="relative flex-1">
                                     <Input
                                         ref="serialInput"
                                         v-model="serialNumber"
                                         placeholder="Escanear o escribir..."
-                                        class="h-14 text-lg font-semibold transition-colors"
+                                        class="h-14 rounded-xl text-lg font-semibold transition-colors"
                                         :class="[
-                                            flashFields.serial ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-900/30' : '',
-                                            formErrors.serial_number ? 'border-red-400' : '',
+                                            flashFields.serial ? 'border-quality-ok bg-quality-ok/10 dark:bg-quality-ok/20' : '',
+                                            formErrors.serial_number ? 'border-quality-critical ring-2 ring-quality-critical/20' : '',
                                         ]"
                                         inputmode="none"
                                         autocomplete="off"
@@ -642,26 +640,26 @@ onMounted(() => {
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    class="h-14 w-14 shrink-0"
+                                    class="h-14 w-14 shrink-0 rounded-xl border-2 focus-visible:ring-2 focus-visible:ring-ring"
                                     @click="openScanner('serial')"
                                 >
                                     <ScanLine class="h-6 w-6" />
                                 </Button>
                             </div>
-                            <p v-if="formErrors.serial_number" class="mt-1 text-sm font-medium text-red-600">{{ formErrors.serial_number }}</p>
+                            <p v-if="formErrors.serial_number" class="mt-1.5 text-sm font-semibold text-quality-critical">{{ formErrors.serial_number }}</p>
                         </div>
 
                         <!-- LOT -->
                         <div>
-                            <Label class="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-400">Lote</Label>
+                            <Label class="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Lote</Label>
                             <div class="flex gap-2">
                                 <div class="relative flex-1">
                                     <Input
                                         ref="lotInput"
                                         v-model="lotDate"
                                         placeholder="Opcional — escanear o escribir"
-                                        class="h-14 text-lg font-semibold transition-colors"
-                                        :class="flashFields.lot ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-900/30' : ''"
+                                        class="h-14 rounded-xl text-lg font-semibold transition-colors"
+                                        :class="flashFields.lot ? 'border-quality-ok bg-quality-ok/10 dark:bg-quality-ok/20' : ''"
                                         autocomplete="off"
                                         @keydown="handleKeydown($event, 'lot')"
                                     />
@@ -669,7 +667,7 @@ onMounted(() => {
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    class="h-14 w-14 shrink-0"
+                                    class="h-14 w-14 shrink-0 rounded-xl border-2 focus-visible:ring-2 focus-visible:ring-ring"
                                     @click="openScanner('lot')"
                                 >
                                     <ScanLine class="h-6 w-6" />
@@ -686,72 +684,69 @@ onMounted(() => {
                             leave-from-class="opacity-100"
                             leave-to-class="opacity-0"
                         >
-                            <div v-if="showLotPrompt" class="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/30">
-                                <p class="mb-2 text-sm font-medium text-blue-800 dark:text-blue-200">
-                                    ¿Usar el mismo lote para los siguientes items?
+                            <div v-if="showLotPrompt" class="rounded-xl border-2 border-primary/30 bg-primary/10 p-4">
+                                <p class="mb-3 text-sm font-semibold text-foreground">
+                                    ¿Usar el mismo lote para los siguientes?
                                 </p>
-                                <div class="flex gap-2">
-                                    <Button size="sm" class="h-10 flex-1" @click="handleLotPromptResponse(true)">Sí</Button>
-                                    <Button size="sm" variant="outline" class="h-10 flex-1" @click="handleLotPromptResponse(false)">No</Button>
+                                <div class="flex gap-3">
+                                    <Button size="sm" class="h-11 flex-1 rounded-xl font-bold" @click="handleLotPromptResponse(true)">Sí</Button>
+                                    <Button size="sm" variant="outline" class="h-11 flex-1 rounded-xl font-bold" @click="handleLotPromptResponse(false)">No</Button>
                                 </div>
                             </div>
                         </Transition>
 
                         <!-- QUANTITIES -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <!-- Good Qty -->
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <Label class="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-400">Buenas</Label>
+                                <Label class="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Buenas</Label>
                                 <button
                                     type="button"
-                                    class="flex h-14 w-full items-center justify-center rounded-lg border-2 text-2xl font-bold transition-colors"
+                                    class="flex h-16 w-full items-center justify-center rounded-xl border-2 text-2xl font-bold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                     :class="[
                                         formErrors.good_qty
-                                            ? 'border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-900/30'
-                                            : 'border-zinc-200 bg-white text-emerald-700 hover:border-emerald-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-emerald-400',
+                                            ? 'border-quality-critical bg-quality-critical/10 text-quality-critical'
+                                            : 'border-border bg-card text-quality-ok hover:border-quality-ok/50 dark:bg-surface-raised',
                                     ]"
                                     @click="openKeypad('good')"
                                 >
                                     {{ goodQty }}
                                 </button>
-                                <p v-if="formErrors.good_qty" class="mt-1 text-sm font-medium text-red-600">{{ formErrors.good_qty }}</p>
+                                <p v-if="formErrors.good_qty" class="mt-1.5 text-sm font-semibold text-quality-critical">{{ formErrors.good_qty }}</p>
                             </div>
-
-                            <!-- Defects Qty -->
                             <div>
-                                <Label class="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-400">Defectos</Label>
+                                <Label class="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Defectos</Label>
                                 <button
                                     type="button"
-                                    class="flex h-14 w-full items-center justify-center rounded-lg border-2 text-2xl font-bold transition-colors"
+                                    class="flex h-16 w-full items-center justify-center rounded-xl border-2 text-2xl font-bold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                     :class="[
                                         formErrors.defects_qty
-                                            ? 'border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-900/30'
-                                            : 'border-zinc-200 bg-white text-red-600 hover:border-red-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-red-400',
+                                            ? 'border-quality-critical bg-quality-critical/10 text-quality-critical'
+                                            : 'border-border bg-card text-quality-critical hover:border-quality-critical/50 dark:bg-surface-raised',
                                     ]"
                                     @click="openKeypad('defects')"
                                 >
                                     {{ defectsQty }}
                                 </button>
-                                <p v-if="formErrors.defects_qty" class="mt-1 text-sm font-medium text-red-600">{{ formErrors.defects_qty }}</p>
+                                <p v-if="formErrors.defects_qty" class="mt-1.5 text-sm font-semibold text-quality-critical">{{ formErrors.defects_qty }}</p>
                             </div>
                         </div>
 
                         <!-- QUALITY RESULT -->
-                        <div class="flex items-center justify-between rounded-lg bg-zinc-50 px-4 py-3 dark:bg-zinc-800/60">
+                        <div class="flex items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-3.5">
                             <div>
-                                <span class="block text-xs font-bold uppercase tracking-widest text-zinc-400">Calidad</span>
-                                <span class="text-xl font-bold" :class="draftQualityColor">
+                                <span class="block text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Calidad</span>
+                                <span class="mt-0.5 block text-xl font-bold tabular-nums" :class="draftQualityColor">
                                     {{ draftQualityPct !== null ? draftQualityPct + '%' : '—' }}
                                 </span>
                             </div>
                             <div class="text-right">
                                 <span
-                                    class="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
+                                    class="inline-block rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider"
                                     :class="{
-                                        'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300': draftQualityStatus === 'acceptable',
-                                        'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300': draftQualityStatus === 'warning',
-                                        'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300': draftQualityStatus === 'critical',
-                                        'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400': !draftQualityStatus,
+                                        'bg-quality-ok/20 text-quality-ok': draftQualityStatus === 'acceptable',
+                                        'bg-quality-warn/20 text-quality-warn': draftQualityStatus === 'warning',
+                                        'bg-quality-critical/20 text-quality-critical': draftQualityStatus === 'critical',
+                                        'bg-muted text-muted-foreground': !draftQualityStatus,
                                     }"
                                 >
                                     {{ draftStatusLabel }}
@@ -760,16 +755,16 @@ onMounted(() => {
                         </div>
 
                         <!-- SAVE / UPDATE BUTTONS -->
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-3">
                             <Button
                                 type="button"
-                                class="h-16 w-full text-lg font-bold"
-                                :class="editingItemId ? 'bg-blue-600 hover:bg-blue-700' : ''"
+                                class="h-16 w-full rounded-xl text-lg font-bold shadow-sm transition-transform active:scale-[0.99]"
+                                :class="editingItemId ? 'bg-primary hover:bg-primary/90' : ''"
                                 :disabled="saving"
                                 @click="saveRecord"
                             >
                                 <template v-if="saving">
-                                    {{ editingItemId ? 'Actualizando...' : 'Guardando...' }}
+                                    {{ editingItemId ? 'Actualizando…' : 'Guardando…' }}
                                 </template>
                                 <template v-else>
                                     {{ editingItemId ? 'Actualizar Registro' : 'Guardar Registro' }}
@@ -779,7 +774,7 @@ onMounted(() => {
                                 v-if="editingItemId"
                                 type="button"
                                 variant="outline"
-                                class="h-12 w-full text-base font-semibold"
+                                class="h-12 w-full rounded-xl text-base font-semibold"
                                 @click="cancelEdit"
                             >
                                 <X class="mr-1.5 h-4 w-4" />
@@ -791,9 +786,9 @@ onMounted(() => {
             </div>
 
             <!-- RECENT RECORDS -->
-            <div v-if="recentItems.length > 0" class="mt-2">
-                <h3 class="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
-                    Registros Recientes ({{ recentItems.length }})
+            <section v-if="recentItems.length > 0" class="animate-capture-reveal animate-capture-reveal-7">
+                <h3 class="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                    Registros recientes ({{ recentItems.length }})
                 </h3>
                 <div class="space-y-2">
                     <TransitionGroup
@@ -807,46 +802,42 @@ onMounted(() => {
                         <div
                             v-for="item in recentItems"
                             :key="item.id"
-                            class="group flex items-center gap-3 rounded-xl border bg-white p-3 transition-colors dark:border-zinc-700 dark:bg-zinc-900"
+                            class="capture-list-item group flex items-center gap-3 rounded-xl border-2 bg-card p-3 transition-colors dark:bg-surface-raised"
                             :class="[
-                                editingItemId === item.id ? 'border-blue-400 ring-2 ring-blue-200 dark:border-blue-600 dark:ring-blue-900' : 'border-zinc-200',
+                                editingItemId === item.id ? 'border-primary ring-2 ring-primary/20' : 'border-border',
                                 deleting === item.id ? 'opacity-50' : '',
                             ]"
                         >
-                            <!-- Main info -->
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-baseline gap-2">
-                                    <span class="truncate text-sm font-bold text-zinc-800 dark:text-zinc-100">
+                                    <span class="truncate text-sm font-bold text-foreground">
                                         {{ item.part_number }}
                                     </span>
-                                    <span class="truncate text-xs text-zinc-500">
+                                    <span class="truncate text-xs text-muted-foreground">
                                         {{ item.serial_number ?? '—' }}
                                     </span>
                                 </div>
-                                <div class="mt-0.5 flex items-center gap-3 text-xs text-zinc-400">
+                                <div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                                     <span v-if="item.lot_date">Lote: {{ item.lot_date }}</span>
-                                    <span class="text-emerald-600">{{ item.good_qty }}B</span>
-                                    <span class="text-red-500">{{ item.defects_qty }}D</span>
+                                    <span class="font-semibold text-quality-ok">{{ item.good_qty }}B</span>
+                                    <span class="font-semibold text-quality-critical">{{ item.defects_qty }}D</span>
                                     <span
-                                        class="font-semibold"
+                                        class="font-bold tabular-nums"
                                         :class="
                                             item.quality_pct !== null
                                                 ? item.quality_pct >= qualityThresholds.green
-                                                    ? 'text-emerald-600'
+                                                    ? 'text-quality-ok'
                                                     : item.quality_pct >= qualityThresholds.amber
-                                                        ? 'text-amber-500'
-                                                        : 'text-red-600'
-                                                : 'text-zinc-400'
+                                                        ? 'text-quality-warn'
+                                                        : 'text-quality-critical'
+                                                : 'text-muted-foreground'
                                         "
                                     >
                                         {{ item.quality_pct !== null ? item.quality_pct + '%' : '—' }}
                                     </span>
                                 </div>
                             </div>
-
-                            <!-- Action buttons -->
                             <div class="flex shrink-0 items-center gap-1">
-                                <!-- Confirm-delete prompt -->
                                 <Transition
                                     enter-active-class="transition-all duration-150 ease-out"
                                     enter-from-class="opacity-0 scale-90"
@@ -855,14 +846,13 @@ onMounted(() => {
                                     leave-from-class="opacity-100"
                                     leave-to-class="opacity-0 scale-90"
                                 >
-                                    <span v-if="confirmDeleteId === item.id" class="mr-1 text-xs font-semibold text-red-600 dark:text-red-400">
+                                    <span v-if="confirmDeleteId === item.id" class="mr-1 text-xs font-bold text-quality-critical">
                                         ¿Seguro?
                                     </span>
                                 </Transition>
-
                                 <button
                                     type="button"
-                                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-blue-600 dark:hover:bg-zinc-800 dark:hover:text-blue-400"
+                                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
                                     :disabled="!!deleting"
                                     title="Editar"
                                     @click="editItem(item.id)"
@@ -871,11 +861,11 @@ onMounted(() => {
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
+                                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                                     :class="
                                         confirmDeleteId === item.id
-                                            ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400'
-                                            : 'text-zinc-400 hover:bg-zinc-100 hover:text-red-600 dark:hover:bg-zinc-800 dark:hover:text-red-400'
+                                            ? 'bg-quality-critical/20 text-quality-critical'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-quality-critical'
                                     "
                                     :disabled="deleting === item.id"
                                     title="Eliminar"
@@ -887,7 +877,7 @@ onMounted(() => {
                         </div>
                     </TransitionGroup>
                 </div>
-            </div>
+            </section>
         </div>
 
         <!-- Scanner Dialog -->
