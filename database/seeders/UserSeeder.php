@@ -10,18 +10,34 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::firstOrCreate(
-            ['email' => 'demo@pluss.com'],
+        // Usuario con permisos para crear inspecciones (supervisor: crear, editar, completar)
+        $creador = User::firstOrCreate(
+            ['email' => 'creador@pluss.com'],
             [
-                'name' => 'Usuario Demo',
+                'name' => 'Usuario Creador',
                 'password' => Hash::make('password'),
                 'company_id' => null,
-                'employee_number' => 'EMP-001',
+                'employee_number' => 'EMP-CRE',
                 'status' => 'active',
                 'email_verified_at' => now(),
             ]
         );
-        $user->syncRoles(['inspector', 'supervisor_calidad']);
-        $user->companies()->sync([]);
+        $creador->syncRoles(['supervisor_calidad']);
+        $creador->companies()->sync([]);
+
+        // Usuario con permisos para realizar inspecciones (inspector: ver, crear, editar; sin completar)
+        $realizador = User::firstOrCreate(
+            ['email' => 'realizador@pluss.com'],
+            [
+                'name' => 'Usuario Realizador',
+                'password' => Hash::make('password'),
+                'company_id' => null,
+                'employee_number' => 'EMP-REA',
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+        $realizador->syncRoles(['inspector']);
+        $realizador->companies()->sync([]);
     }
 }
